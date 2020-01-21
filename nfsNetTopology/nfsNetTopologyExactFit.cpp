@@ -710,6 +710,14 @@ void WDM::free_serviced_call_slots(double time,int calls_till_now)
 
   //----------------------------------------------------------------------------------------------------------------------//  
 }
+double vectorSum(vector<float> &v){
+  double v_sum = 0;
+  for(int i=0;i<v.size();i++){
+    // cout<<v[i]<<"|";
+    v_sum += v[i];
+  }
+  return v_sum;
+}
 
 
 int main() {
@@ -750,17 +758,14 @@ int main() {
     cin>>Time;
 
     int calls_blocked,i,call_completed,total_calls = ceil(lambda*Time);
-    //------------------------------------------------------------------------------------//
-    int call_completed_new, calls_blocked_new;
     //-----------------------------------------------------------------------------------//
     double t_current,t_hold;
     topo.call_end_time.clear(); //vector to store end time for call requests
-    topo.call_end_time_new.clear();
     //topo.call_end_time.resize(total_calls);
     
 
     srand(time(NULL));
-    calls_blocked = calls_blocked_new = 0;
+    calls_blocked = 0;
 
     topo.call_end_time.push_back(-1);
     topo.call_end_time_new.push_back(-1);
@@ -774,6 +779,7 @@ int main() {
     float stopping_point = 0;
     int no_of_calls;
     bool stopping_flag = false;
+    vector<float> cont_slots;
     //---------------------------------------------------------------------------------------//
 
     for(i=1;;i++)
@@ -790,11 +796,11 @@ int main() {
         cout<<"-------------------------------------------------        -------------------------------------------------"<<endl;
 
         double blocking_probability = ((double)calls_blocked/no_of_calls) ;
-        double blocking_probability_new = ((double)calls_blocked_new/no_of_calls) ;
 
         //Calculate blocking probability //SEE WHY TO USE PRECISION WITH Cout on internet
         cout.precision(4);
         cout<<"EF: Blocking probability is : "<<blocking_probability<<endl;
+        cout<<"EF: Normalized contiguous available slots(avg): "<<(vectorSum(cont_slots))/no_of_calls<<endl;
 
         cout<<"Initial delay: "<<delay_sum/no_of_calls<<endl; // total delay sum / no of calls
         cout<<"Spectrum efficiency(avg): "<<avg_efficiency/no_of_calls<<endl;
@@ -839,6 +845,8 @@ int main() {
          
         if(call_completed != 1)
           calls_blocked++;
+        else
+          cont_slots.push_back(call_completed);
 
         cout<<"EF:  Calls arrived : "<<i<<", "<<"Blocked calls : "<<calls_blocked<<endl;
 

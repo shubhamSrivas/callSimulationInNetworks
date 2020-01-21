@@ -880,6 +880,14 @@ void WDM::free_serviced_call_slots(double time,int calls_till_now)
   //------------------------------------------------------------------------------------------------------------------//  
 }
 
+double vectorSum(vector<float> &v){
+  double v_sum = 0;
+  for(int i=0;i<v.size();i++){
+    // cout<<v[i]<<"|";
+    v_sum += v[i];
+  }
+  return v_sum;
+}
 
 int main() {
     int nodes=14,edge_density,density,waves,slots;
@@ -943,6 +951,8 @@ int main() {
     float stopping_point = 0;
     int no_of_calls;
     bool stopping_flag = false;
+    vector<float> ff_cont_slots;
+    vector<float> flf_cont_slots;
     //---------------------------------------------------------------------------------------//
 
     for(i=1;;i++)
@@ -964,7 +974,9 @@ int main() {
         //Calculate blocking probability //SEE WHY TO USE PRECISION WITH Cout on internet
         cout.precision(4);
         cout<<"FF: Blocking probability is : "<<blocking_probability<<endl;
+        cout<<"FF: Normalized contiguous available slots(avg): "<<(vectorSum(ff_cont_slots))/no_of_calls<<endl;
         cout<<"FLF:  Blocking probability is : "<<blocking_probability_new<<endl;
+        cout<<"FLF: Normalized contiguous available slots(avg): "<<(vectorSum(flf_cont_slots))/no_of_calls<<endl;
 
         cout<<"Initial delay: "<<delay_sum/no_of_calls<<endl; // total delay sum / no of calls
         cout<<"Spectrum efficiency(avg): "<<avg_efficiency/no_of_calls<<endl;
@@ -1010,9 +1022,13 @@ int main() {
          
         if(call_completed != 1)
           calls_blocked++;
+        else
+          ff_cont_slots.push_back(call_completed);
 
         if(call_completed_new != 1)
           calls_blocked_new++;
+        else
+          flf_cont_slots.push_back(call_completed_new);
 
         cout<<"FF:  Calls arrived : "<<i<<", "<<"Blocked calls : "<<calls_blocked<<endl;
         cout<<"FLF:  Calls arrived : "<<i<<", "<<"Blocked calls : "<<calls_blocked_new<<endl;
