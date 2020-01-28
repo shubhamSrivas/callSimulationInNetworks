@@ -102,7 +102,7 @@ class WDM : public Graph
         //generate time after which next call occurs
         float next_call_time(double lambda);
         //get wavelength according to first-fit algorithm
-        int exact_fit(int source,int destination,int slots_required,int request_number);
+        int exact_fit(int source,int destination,int slots_required,int request_number,vector<int> &slot_array);
 
         //----------------------------------------------------------------------------------------//
         //to push wavlength and available slot in slot_index matrix
@@ -513,10 +513,10 @@ vector<float> WDM::call_process()
 
 //generate time after which next call occurs
 float WDM::next_call_time(double service_rate)
-{return -logf(1.0f - (float) random() / (RAND_MAX + 1)) / service_rate;}
+{return -logf(1.0f - (float) random() / (RAND_MAX + 1ll)) / service_rate;}//1 is typecasted to long long to prevent integer overflow
 
 //get wavelength according to first-fit algorithm
-int WDM::exact_fit(int src,int dest,int slots_required,int request_number){
+int WDM::exact_fit(int src,int dest,int slots_required,int request_number,vector<int> &slot_arr){
     int i,j,origin,end,q,slot_number;
     int p,s,temp_slot_number;
     int cfs;//variable to represent continuous no of free slots
@@ -573,6 +573,7 @@ int WDM::exact_fit(int src,int dest,int slots_required,int request_number){
                     for(j=0;j<Network[origin].size();j++)
                         if(slot_arrays[slot_number][q][origin][j].first==end)
                         break;
+                    slot_arr[slot_number]++;//slot_arr is a 1d array for calculating max used slot index
                     this->slot_arrays[slot_number][q][origin][j].second=request_number;
                 }
             }
@@ -780,12 +781,13 @@ int main() {
     int no_of_calls;
     bool stopping_flag = false;
     vector<float> cont_slots;
+    vector<int> slot_arr(slots);
     //---------------------------------------------------------------------------------------//
 
     for(i=1;;i++)
     {
       
-      t_current = t_current - topo.next_call_time(lambda);
+      t_current = t_current + topo.next_call_time(lambda);
 
       if(stopping_flag){ // current time is greater than last serviced call time
         cout<<"--------------------------------------                           -----------------------------------------"<<endl;
@@ -797,11 +799,18 @@ int main() {
 
         double blocking_probability = ((double)calls_blocked/no_of_calls) ;
 
-        //Calculate blocking probability //SEE WHY TO USE PRECISION WITH Cout on internet
+        //Calculate blocking probability 
+        int ma=slot_arr[0],idx=0;
+        for(int i=0;i<slots;i++){
+            if(slot_arr[i]>ma){
+                ma=slot_arr[i];
+                idx=i;
+            }
+        }
         cout.precision(4);
         cout<<"EF: Blocking probability is : "<<blocking_probability<<endl;
         cout<<"EF: Normalized contiguous available slots(avg): "<<(vectorSum(cont_slots))/no_of_calls<<endl;
-
+        cout<<"Max used slot index is: "<<idx+1<<endl;
         cout<<"Initial delay: "<<delay_sum/no_of_calls<<endl; // total delay sum / no of calls
         cout<<"Spectrum efficiency(avg): "<<avg_efficiency/no_of_calls<<endl;
         cout<<no_of_calls;
@@ -814,7 +823,7 @@ int main() {
         stopping_flag = true; // flag to indicate that program should stop after serving all the calls
       }
       else{
-        t_hold = -topo.next_call_time(mu);
+        t_hold = topo.next_call_time(mu);
 
         if(stopping_point < t_current+t_hold)
           stopping_point = t_current+t_hold;
@@ -840,7 +849,7 @@ int main() {
           continue;
         }
         
-        call_completed = topo.exact_fit(call[1],call[2],call[3],i);
+        call_completed = topo.exact_fit(call[1],call[2],call[3],i,slot_arr);
 
          
         if(call_completed != 1)

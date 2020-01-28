@@ -460,7 +460,7 @@ vector<float> WDM::call_process()
 
 //generate time after which next call occurs
 float WDM::next_call_time(double service_rate)
-{return -logf(1.0f - (float) random() / (RAND_MAX + 1)) / service_rate;}
+{return -logf(1.0f - (float) random() / (RAND_MAX + 1ll)) / service_rate;}// ll to prevent overflow
 
 
 void WDM::slots_available(vector<Edge> path,int wl,bool slot_available[],bool fresh_slots[],bool wdsp = false)
@@ -815,7 +815,7 @@ int main() {
     for(i=1;;i++)
     {
       
-      t_current = t_current - topo.next_call_time(lambda);
+      t_current = t_current + topo.next_call_time(lambda);
 
       if(stoping_flag){ // current time is greater than last serviced call time
         cout<<"--------------------------------------                           -----------------------------------------"<<endl;
@@ -845,7 +845,7 @@ int main() {
         stoping_flag = true; // flag to indicate that program should stop after serving all the calls
       }
       else{
-        t_hold = -topo.next_call_time(mu);
+        t_hold = topo.next_call_time(mu);
 
         if(stoping_point < t_current+t_hold)
           stoping_point = t_current+t_hold;

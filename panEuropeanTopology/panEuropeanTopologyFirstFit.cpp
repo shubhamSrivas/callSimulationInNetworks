@@ -536,7 +536,7 @@ vector<float> WDM::call_process()
 
 //generate time after which next call occurs
 float WDM::next_call_time(double service_rate)
-{return -logf(1.0f - (float) random() / (RAND_MAX + 1)) / service_rate;}
+{return -logf(1.0f - (float) random() / (RAND_MAX + 1ll)) / service_rate;}//ll to prevent overflow
 
 //get wavelength according to first-fit algorithm
 int WDM::first_fit(int source,int destination,int slots_required,int request_number)
@@ -978,7 +978,7 @@ int main() {
     for(i=1;;i++)
     {
       
-      t_current = t_current - topo.next_call_time(lambda);
+      t_current = t_current + topo.next_call_time(lambda);
 
       if(stopping_flag){ // current time is greater than last serviced call time
         cout<<"--------------------------------------                           -----------------------------------------"<<endl;
@@ -1010,7 +1010,7 @@ int main() {
         stopping_flag = true; // flag to indicate that program should stop after serving all the calls
       }
       else{
-        t_hold = -topo.next_call_time(mu);
+        t_hold = topo.next_call_time(mu);
 
         if(stopping_point < t_current+t_hold)
           stopping_point = t_current+t_hold;
