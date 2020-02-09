@@ -805,9 +805,9 @@ int main() {
 
     float delay_sum = 0;
     float avg_efficiency = 0;
-    float stoping_point = 0;
+    float stopping_point = 0;
     int no_of_calls;
-    bool stoping_flag = false;
+    bool stopping_flag = false;
     vector<float> cont_slots;
     vector<float> wdsp_cont_slots;
     //---------------------------------------------------------------------------------------//
@@ -817,10 +817,10 @@ int main() {
       
       t_current = t_current + topo.next_call_time(lambda);
 
-      if(stoping_flag){ // current time is greater than last serviced call time
+      if(stopping_flag){ // current time is greater than last serviced call time
         cout<<"--------------------------------------                           -----------------------------------------"<<endl;
         cout<<"-------------------------------------- Processing calls in queue -----------------------------------------"<<endl;
-        topo.free_serviced_call_slots(stoping_point+0.5,no_of_calls); // process reaming calls
+        topo.free_serviced_call_slots(stopping_point+0.5,no_of_calls); // process reaming calls
         cout<<"-------------------------------------------------        -------------------------------------------------"<<endl;
         cout<<"------------------------------------------------- Result -------------------------------------------------"<<endl;
         cout<<"-------------------------------------------------        -------------------------------------------------"<<endl;
@@ -842,13 +842,13 @@ int main() {
 
       if(t_current > Time){
         no_of_calls = i-1;
-        stoping_flag = true; // flag to indicate that program should stop after serving all the calls
+        stopping_flag = true; // flag to indicate that program should stop after serving all the calls
       }
       else{
         t_hold = topo.next_call_time(mu);
 
-        if(stoping_point < t_current+t_hold)
-          stoping_point = t_current+t_hold;
+        if(stopping_point < t_current+t_hold)
+          stopping_point = t_current+t_hold;
 
         cout<<endl;
         cout<<"----------------------------------------- AFTER CALL "<<i<<" --------------------------------------------"<<endl;

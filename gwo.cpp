@@ -1,4 +1,23 @@
 // objf is the objective function which needs to be defined
+double objf(vector<int> &v){
+    int k=round(v.size()/2);
+    vector<int> v1,v2;
+    int n=v.size()-1;
+    for(int i=0;i<k;i++)v1.push_back(v[i]);
+    for(int i=k;i<v.size();i++)v2.push_back(v[i]);
+    double s=0;
+    for(int i=0;i<n;i++){
+        int jmn=(i>=v2.size()-1)?i-v2.size()+1:0;
+        int jmx=(i<v1.size())?i:v1.size()-1;
+        double ans=0;
+        for(int j=jmn;j<=jmx;j++){
+            ans+=v1[j]*v2[i-j];
+        }
+        s+=ans;
+    }
+    s=s/n;
+    return s;
+}
 vector<double> GWO(int lb,int ub,int dim,int SearchAgentsNo,int max_iter){
     vector<int> alpha_pos(dim,0);
     double alpha_score=DBL_MAX;
